@@ -1,0 +1,59 @@
+
+= Messages structure = 
+
+== CLIENT to SERVER ==
+
+
+=== Subscription ===
+ The client wants to be registred by the server
+ 	
+ 	==== REQUEST ====
+ 	code	|	sub
+	model	|	[ code ; RT[0,1] ; priority[1,2,3] ; probe ; processName ; processDescription ]
+	sample	|	[sub;0;2;2;"coffee machine";"help you survive"]
+	arg		|	RT : is real time (1) or not (0)
+				priority : the level of priority of  that process (high=1, middle=2, low=3)
+				probe : how many different states can the process handle
+				processName : the name of the process without the extension. (Ex, firefox.exe is firefox)
+				processDescription : a description for better logging
+	
+	==== RESPOND ====
+	code	|	sub
+	model	|	[ code ; state[0,1] ; clientId ]
+	sample	|	[sub;1;0]
+	arg		|	state : the subscription went well (1) or not (0)
+				clientId : the id the client is registred to
+
+
+
+=== Ping cpu charge ===
+ A regisred or unregistred client ask for a the cpu load
+
+ 	==== REQUEST ====
+ 	code	|	ping
+ 	model 	|	[ code ; detailLevel[0,1] ]
+ 	sample	|	[ping;0]
+ 	arg		|	detailLevel : (0) gives the global cpu load. While (1) gives the details for every registrer client
+
+
+	==== RESPOND ====
+	code	|	ping
+	model	|	[ code ; overallCpuLoad ; [ [ processName, cpuLoad ],... ] ]
+	sample	|	[ping;80;[[firefox;22],[ApccServer;2]]]
+	arg		|	overallCpuLoad : the cpu full load
+
+
+
+== SERVER to CLIENT ==
+
+=== Change state ===
+The server ask a client to change it's state to let him know he might take more cpu load or not
+
+ 	==== REQUEST ====
+ 	code	|	state
+ 	model 	|	[ code ; probeLevel ]
+ 	sample	|	[state;2]
+ 	arg		|	probeLevel : the level on the probe define at registry, the server would like the client to be
+
+
+

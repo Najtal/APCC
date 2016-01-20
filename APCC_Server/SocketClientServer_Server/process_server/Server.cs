@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SocketClientServer_Server.process_server;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +12,15 @@ namespace SocketClientServer_Server
 {
     class Server
     {
-        private Model model;
+        private static Model model;
+        public static Server singleton { get; private set; }
+        public Sender sender { get; private set; }
 
         public Server()
         {
-            this.model = Model.singleton;
+            model = Model.singleton;
+            Server.singleton = this;
+            this.sender = new Sender();
         }
 
         public void RunThread()
@@ -66,15 +71,14 @@ namespace SocketClientServer_Server
                         Console.WriteLine(String.Format("Received: {0}", data));
 
                         // Process the data sent by the client.
-                        BoClient boc = MessageParser.newMessage(data, tcpClient);
-                       
-                        sendMessage(boc, BoMessage.checkSubscription(boc));
-
-                        broadCastMessage("On a recu un message ici ;)");
+                        new Task(() => { MessageParser.newMessage(data, tcpClient); }).Start();
+                        //BoClient boc = MessageParser.newMessage(data, tcpClient);
 
                         break;
                     }
 
+                    sender.broadCastMessage("Got new message !");
+                    
                     // Shutdown and end connection
                     //client.Close();
                 }
@@ -90,27 +94,7 @@ namespace SocketClientServer_Server
             Console.Read();
         }
 
-        public void broadCastMessage(String message)
-        {
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(message);
-            foreach (BoClient cl in model.clients)
-            {
-                sendMessage(cl, msg);
-            }
-            Console.WriteLine(String.Format("Broadcasté à {0} clients", model.clients.Count));
-        }
 
-        public void sendMessage(BoClient client, String message)
-        {
-            byte[] msg = System.Text.Encoding.ASCII.GetBytes(message);
-            sendMessage(client, msg);
-            Console.WriteLine(String.Format("Envoyé à client {0}", client.id));
-        }
-
-        private void sendMessage(BoClient client, byte[] message)
-        {
-            client.tcp.GetStream().Write(message, 0, message.Length);
-        }
 
     }
 }

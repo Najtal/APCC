@@ -13,17 +13,19 @@ namespace SocketClientServer_Server
 {
     class Model
     {
+        public static Model singleton { get; private set; }
 
-        public ArrayList clients { get; private set; }
+        // Model data
+        public List<BoClient> clients { get; private set; }
         public Boolean processesHasChange { get; private set; }
         public int marge { get; private set; }
         public int port { get; private set; }
         private int latency;
         private int averageReport;
 
+        internal int cpuLoad;
         public IPAddress adrLocal { get; set; }
-        public static Model singleton { get; private set; }
-
+        
         
         public Model(int marge, int port, int latency, int averageReport)
         {
@@ -36,17 +38,22 @@ namespace SocketClientServer_Server
             this.port = port;
             this.latency = latency;
             this.averageReport = averageReport;
-            this.clients = new ArrayList();
+            this.clients = new List<BoClient>();
             this.processesHasChange = true;
         }
 
-        public BoClient newClient(TcpClient tcp, BoClient.BocType type, int priority, int scale, string proName, string description)
+        public BoClient newClient(TcpClient tcp, Boolean type, int priority, int probe, string proName, string proDescription)
         {
-            BoClient nClient = new BoClient(tcp, type, priority, scale, proName, description);
+            Console.WriteLine("new client 1");
+            BoClient nClient = new BoClient(tcp, type, priority, probe, proName, proDescription);
+            Console.WriteLine("new client 2");
             this.clients.Add(nClient);
+            Console.WriteLine("new client 3");
             processesHasChange = true;
+            Console.WriteLine("new client 4");
             return nClient;
         }
+
 
         internal ArrayList getProcessNames()
         {
@@ -57,20 +64,23 @@ namespace SocketClientServer_Server
             return processNames;
         }
 
-        internal void updateClientValues(string[,] newValues, int nbVal)
+
+        internal void updateClientValues(Object[,] newValues, int nbtours)
         {
-            for(int i=0;i<nbVal;i++)
+            Console.WriteLine("Consommations :");
+            for(int i=0;i< newValues.Length; i++)
             {
                 foreach(BoClient boc in clients)
                 {
-                    if (boc.proName == newValues[i,0])
+                    if (boc.proName == (String)newValues[i,0])
                     {
-                        boc.cpuCost = newValues[i, 1];
+                        // on copie la valeur moyenne
+                        boc.cpuCost = (int)newValues[i, 1]/nbtours;
+                        Console.WriteLine(boc.proName + " id("+boc.id+") , consomme: " + boc.cpuCost); 
                         break;
                     }
                 }
             }
-            //throw new NotImplementedException();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SocketClientServer_Server.core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,28 +12,38 @@ namespace SocketClientServer_Server
 
         private Server server;
         private Model model;
-        
+        private Core core;
+
+        private static Task tskServer;
+        private static Task tskProcessListener;
+
         // Constructor
         public Prog(int marge, int port, int latency, int averageReport)
         {
-            // On génère le modèle
+            // Init model (Singleton shared entity)
             this.model = new Model(marge, port, latency, averageReport);
-            Task tskServer = Task.Factory.StartNew(() => new Server().RunThread());
+
+            // Init server (Thread listening to clients)
+            tskServer = Task.Factory.StartNew(() => new Server().RunThread());
             Console.WriteLine("Server listening for clients at: localhost:" + port);
-            Task tskProcessListener = Task.Factory.StartNew(() => ProcessListener.RunThread(latency, averageReport));
+            
+            // Init processListener (Thread listening to CPU load)
+            tskProcessListener = Task.Factory.StartNew(() => ProcessListener.RunThread(latency, averageReport));
             Console.WriteLine("Server ready to measure processes");
 
-            while (true) {}
-            //this.server = Task.Factory.StartNew();
-            //this.server = new Server(this.model);
+            // Init core (Current Thread, scale processes cpu need)
+            new Core(model, server).run();
+            
         }
+
+
 
         public static void Main(String[] args)
         {
-            int marge = 20;
-            int port = 13000;
-            int latency = 250;
-            int averageReport = 4;
+            int marge = 20;     // 100%-marge% cpu ou on fait bouger les choses
+            int port = 13000;   // port du serveur
+            int latency = 250;  // la fréquence (en ms) a laquelle vérifier le cout des process
+            int averageReport = 20; // remonter au modele les données tout les x latency
 
             new Prog(marge, port, latency, averageReport);
         }

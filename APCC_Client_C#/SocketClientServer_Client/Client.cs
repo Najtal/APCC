@@ -12,11 +12,12 @@ namespace SocketClientServer_Client
     {
 
         private static String server = "localhost";
-        private static String message = "Coucou ma poule";
+        private static String message = "sub;0;2;2;SocketClientServer_Client;a first test";
 
         public static void Main()
         {
-        try
+
+            try
             {
                 // Create a TcpClient.
                 // Note, for this client to work you need to have a TcpServer 
@@ -34,7 +35,6 @@ namespace SocketClientServer_Client
 
                 // Send the message to the connected TcpServer. 
                 stream.Write(data, 0, data.Length);
-
                 Console.WriteLine("Sent: {0}", message);
 
                 String dataString = null;
@@ -49,13 +49,15 @@ namespace SocketClientServer_Client
                     // String to store the response ASCII representation.
                     String responseData = String.Empty;
 
-                    while ((i = stream.Read(data, 0, data.Length)) != 0) { 
+                    while ((i = stream.Read(data, 0, data.Length)) != 0)
+                    {
 
                         // Read the first batch of the TcpServer response bytes.
                         // Int32 bytes = stream.Read(data, 0, data.Length);
 
                         responseData = System.Text.Encoding.ASCII.GetString(data, 0, i);
                         Console.WriteLine("Received: {0}", responseData);
+
                     }
                 }
 

@@ -11,17 +11,17 @@ namespace SocketClientServer_Server
 
         // VAR
         internal int id;
-        internal string cpuCost;
+        internal int cpuCost;
 
         public TcpClient tcp { get; set; }
-        public BocType type { get; private set; }
+        public bool type { get; private set; }
         public int priority { get; private set; }
         public int scale { get; private set; }
         public string proName { get; private set; }
         public string proDesc { get; private set; }
 
 
-        public BoClient(TcpClient tcp, BocType type, int priority, int scale, string proName, string proDesc)
+        public BoClient(TcpClient tcp, bool type, int priority, int scale, string proName, string proDesc)
         {
             this.id = idCpt;
             idCpt++;
