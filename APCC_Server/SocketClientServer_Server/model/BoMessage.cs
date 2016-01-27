@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SocketClientServer_Server
 {
@@ -16,17 +12,7 @@ namespace SocketClientServer_Server
 
         public static String ping(int detailLevel)
         {
-            string ret = "[ping;" + Model.singleton.cpuLoad;
-            if (detailLevel == 1)
-            {
-                ret += ";[";
-                foreach(BoClient client in Model.singleton.clients)
-                {
-                    ret += "[" + client.proName + ";" + client.cpuCost + "]";
-                }
-                ret += "]";
-            }
-            ret += "]";
+            string ret = "[ping;" + Model.singleton.cpuLoad + "]";
             return ret;
         }
         

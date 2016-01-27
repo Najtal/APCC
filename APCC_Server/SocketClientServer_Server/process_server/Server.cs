@@ -43,18 +43,18 @@ namespace SocketClientServer_Server
                 Byte[] bytes = new Byte[256];
                 String data = null;
 
-                Console.Write("Waiting for a connection... ");
+                Console.Write("[INFO] [SERVER] Waiting for a connection... ");
 
                 // Enter the listening loop.
                 while (true)
                 {
 
-                    Console.WriteLine("Ready for new client");
+                    Console.WriteLine("[INFO] [SERVER] Ready for new client");
 
                     // Perform a blocking call to accept requests.
                     // You could also user server.AcceptSocket() here.
                     TcpClient tcpClient = server.AcceptTcpClient();
-                    Console.WriteLine("Connected!");
+                    Console.WriteLine("[INFO] [SERVER] Listening...");
 
                     // Get a stream object for reading and writing
                     NetworkStream stream = tcpClient.GetStream();
@@ -68,7 +68,7 @@ namespace SocketClientServer_Server
 
                         // Translate data bytes to a ASCII string.
                         data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-                        Console.WriteLine(String.Format("Received: {0}", data));
+                        Sender.broadCastMessage("[INFO] [SERVER] Received new message: " + data);
 
                         // Process the data sent by the client.
                         new Task(() => { MessageParser.newMessage(data, tcpClient); }).Start();
@@ -76,8 +76,6 @@ namespace SocketClientServer_Server
 
                         break;
                     }
-
-                    sender.broadCastMessage("Got new message !");
                     
                     // Shutdown and end connection
                     //client.Close();

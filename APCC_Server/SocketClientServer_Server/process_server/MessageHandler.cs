@@ -15,7 +15,6 @@ namespace SocketClientServer_Server
 
         internal static BoClient newMessage(string message, TcpClient tcpClient)
         {
-            Console.WriteLine("recu: " + message);
 
             Object[] action = getMessageAction(message);
             BoClient client = Model.singleton.clients.Find(x => x.tcp == tcpClient);
@@ -23,25 +22,37 @@ namespace SocketClientServer_Server
             // Si client pas enregistré
             if (client == null)
             {
+
+                // Si le client n'est pas enregistré
+
                 switch ((String)action[0])
                 {
                     case "sub": // Create new client
+                        // prepare param
                         int priority = Convert.ToInt32(action[2]);
                         int probe = Convert.ToInt32(action[3]);
                         String proName = Convert.ToString(action[4]);
                         String proDescription = Convert.ToString(action[5]);
+                        // create client
                         client = Model.singleton.newClient(tcpClient, true, priority, probe, proName, proDescription);
-                        Console.WriteLine("nouveau client crée");
-                        Server.singleton.sender.sendMessage(client, BoMessage.checkSubscription(client, true));
-                        Server.singleton.sender.broadCastMessage("new client" + client.id);
+                        Console.WriteLine("[INFO] [MESSAGE] nouveau client crée");
+                        // Send message
+                        Sender.sendMessage(client, BoMessage.checkSubscription(client, true));
+                        Sender.broadCastMessage("[MESSAGE] [BROADCASR] new client dans la boite: " + client.id);
                         break;
+
                     case "ping": // Ask for cpu load
-                        Server.singleton.sender.sendMessage(tcpClient, BoMessage.ping((int)action[1]));
+                        Console.WriteLine("[INFO] [MESSAGE] ping reçu");
+                        Sender.sendMessage(tcpClient, BoMessage.ping((int)action[1]));
                         break;
                 }
             } else
             {
-                Console.WriteLine("client : " + client.id);
+
+                // Si le client est enregistré
+
+                Console.WriteLine("[INFO] [MESSAGE] client " + client.id + " à envoyé: " + message);
+
             }
 
             return client;
@@ -51,11 +62,13 @@ namespace SocketClientServer_Server
         {
             Object[] data = message.Split(delimiterChars);
 
+            /*
+            // Display message object content
             Console.WriteLine("action[]: ");
             foreach (Object o in data)
             {
                 Console.WriteLine((string)o + " ; ");
-            }
+            }*/
 
             /*
             // Validate data

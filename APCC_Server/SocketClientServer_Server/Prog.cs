@@ -18,21 +18,21 @@ namespace SocketClientServer_Server
         private static Task tskProcessListener;
 
         // Constructor
-        public Prog(int marge, int port, int latency, int averageReport)
+        public Prog(int marge, int port, int latency)
         {
             // Init model (Singleton shared entity)
-            this.model = new Model(marge, port, latency, averageReport);
+            this.model = new Model(marge, port, latency);
 
             // Init server (Thread listening to clients)
             tskServer = Task.Factory.StartNew(() => new Server().RunThread());
-            Console.WriteLine("Server listening for clients at: localhost:" + port);
+            Console.WriteLine("[INFO] [PROG] Server listening for clients at: localhost:" + port);
             
             // Init processListener (Thread listening to CPU load)
-            tskProcessListener = Task.Factory.StartNew(() => ProcessListener.RunThread(latency, averageReport));
-            Console.WriteLine("Server ready to measure processes");
+            tskProcessListener = Task.Factory.StartNew(() => ProcessListener.RunThread(latency));
+            Console.WriteLine("[INFO] [PROG] Server ready to measure processes");
 
             // Init core (Current Thread, scale processes cpu need)
-            new Core(model, server).run();
+            new Core(latency).run();
             
         }
 
@@ -43,9 +43,8 @@ namespace SocketClientServer_Server
             int marge = 20;     // 100%-marge% cpu ou on fait bouger les choses
             int port = 13000;   // port du serveur
             int latency = 250;  // la fréquence (en ms) a laquelle vérifier le cout des process
-            int averageReport = 20; // remonter au modele les données tout les x latency
 
-            new Prog(marge, port, latency, averageReport);
+            new Prog(marge, port, latency);
         }
     }
 }
