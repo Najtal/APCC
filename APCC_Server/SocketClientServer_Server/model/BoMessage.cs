@@ -10,11 +10,25 @@ namespace SocketClientServer_Server
             return "[sub,"+((ok)?1:0)+","+client.id+"]";
         }
 
-        public static String ping(int detailLevel)
+        public static String ping()
         {
             string ret = "[ping;" + Model.singleton.cpuLoad + "]";
             return ret;
         }
-        
+
+        public static String slowDown()
+        {
+            return "[action,slowdown]";
+        }
+
+        public static String speedUp()
+        {
+            return "[action,speedup]";
+        }
+
+        internal static string givePosition(int lvl)
+        {
+            return "[action,setScale," + lvl + "]";
+        }
     }
 }

@@ -12,7 +12,6 @@ namespace SocketClientServer_Server.process_server
 
         public static void broadCastMessage(String message)
         {
-            Console.WriteLine("[INFO] [SENDER] Start broadcast: " + message + " to " + Model.singleton.clients.Count + " clients");
             byte[] msg = System.Text.Encoding.ASCII.GetBytes(message);
 
             // TODO : Handle disconnexions !

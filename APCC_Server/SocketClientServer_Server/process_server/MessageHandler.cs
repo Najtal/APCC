@@ -35,15 +35,13 @@ namespace SocketClientServer_Server
                         String proDescription = Convert.ToString(action[5]);
                         // create client
                         client = Model.singleton.newClient(tcpClient, true, priority, probe, proName, proDescription);
-                        Console.WriteLine("[INFO] [MESSAGE] nouveau client crée");
                         // Send message
                         Sender.sendMessage(client, BoMessage.checkSubscription(client, true));
-                        Sender.broadCastMessage("[MESSAGE] [BROADCASR] new client dans la boite: " + client.id);
                         break;
 
                     case "ping": // Ask for cpu load
                         Console.WriteLine("[INFO] [MESSAGE] ping reçu");
-                        Sender.sendMessage(tcpClient, BoMessage.ping((int)action[1]));
+                        Sender.sendMessage(tcpClient, BoMessage.ping());
                         break;
                 }
             } else

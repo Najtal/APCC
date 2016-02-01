@@ -36,14 +36,14 @@ namespace SocketClientServer_Server
                     System.Threading.Thread.Sleep(1000);
                     // now matches task manager reading
                     cpuUsage = proCpuCounter.NextValue();
-                    Console.WriteLine("[DEBUG] [PROCESS LINTENER] process usage: " + cpuUsage);
+                    //Console.WriteLine("[DEBUG] [PROCESS LINTENER] process usage: " + cpuUsage);
                 }
 
                 /// MEMORY available
                 using (PerformanceCounter proRamCounter = new PerformanceCounter("Memory", "Available MBytes"))
                 {
                     memAvailable = proRamCounter.NextValue();
-                    Console.WriteLine("[DEBUG] [PROCESS LINTENER] memory available: " + memAvailable + "MB");
+                    //Console.WriteLine("[DEBUG] [PROCESS LINTENER] memory available: " + memAvailable + "MB");
                 }
 
 
@@ -52,35 +52,6 @@ namespace SocketClientServer_Server
                 Thread.Sleep(ProcessListener.latency);
 
             }
-
-
-            // Si les clients enregistrés ont changés, on les réactualisent
-            /*if (model.processesHasChange)
-            {
-                processName = model.getProcessNames();
-                counter = 0;
-
-                Console.WriteLine("[DEBUG] [PROCESS LINTENER] get process list. DISPLAY LIST:");
-                foreach (String pn in processName)
-                    Console.WriteLine("[DEBUG] [PROCESS LINTENER] PROCESS NAME : " + pn);
-            }*/
-
-
-
-            // DEBUT BOUCLE PROCESS
-            /*Process[] runningNow = Process.GetProcesses();
-            foreach (Process process in runningNow.Where(x => processName.Contains(x.ProcessName)))
-            {
-
-            }
-
-            if (counter == ProcessListener.averageReport)
-            {
-                model.updateClientValues(newValues, counter);
-                counter = 0;
-            }*/
-
-
 
         }
     }

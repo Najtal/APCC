@@ -21,6 +21,7 @@ namespace SocketClientServer_Server
 
         internal float cpuLoad { get; private set; }
         public bool cpuLimitExceeded { get; set; }
+        public bool cpuFreeZone { get; set; }
         private bool clientListChangeForAPOC;
 
         public IPAddress adrLocal { get; set; }
@@ -38,6 +39,7 @@ namespace SocketClientServer_Server
             this.latency = latency;
             this.clients = new List<BoClient>();
             this.cpuLimitExceeded = false;
+            this.cpuFreeZone = false;
         }
 
         internal List<BoClient> hasClientListChangeForAPOC()
@@ -64,13 +66,23 @@ namespace SocketClientServer_Server
         internal void updateCpuValue(float cpuUsage)
         {
             cpuLoad = cpuUsage;
-            Console.WriteLine("[INFO] [MODEL] MAJ de la consommation CPU " + cpuUsage);
+            //Console.WriteLine("[INFO] [MODEL] MAJ de la consommation CPU " + cpuUsage);
 
             // if cpu to high
             if (cpuUsage > (100-this.marge))
             {
                 cpuLimitExceeded = true;
-                Console.WriteLine("[WARNING] [MODEL] CPU LIMIT EXCEEDED !");
+                Console.WriteLine("[WARNING] [MODEL] CPU IN RED ZONE !");
+            }
+            else if (cpuUsage < (100-this.marge-20))
+            {
+                cpuLimitExceeded = false;
+                cpuFreeZone = true;
+                //Console.WriteLine("[INFO] [MODEL] CPU IN GREEN ZONE !");
+            } else
+            {
+                cpuLimitExceeded = false;
+                cpuFreeZone = false;
             }
         }
     }

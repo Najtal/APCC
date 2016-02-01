@@ -12,7 +12,7 @@ namespace SocketClientServer_Client
     {
 
         private static String server = "localhost";
-        private static String message = "sub;0;2;2;SocketClientServer_Client;a first test";
+        private static String message = "sub;0;3;2;SocketClientServer_Client;a first test";
 
         public static void Main()
         {

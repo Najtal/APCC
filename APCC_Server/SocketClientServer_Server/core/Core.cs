@@ -13,8 +13,13 @@ namespace SocketClientServer_Server.core
         private Model model;
         private Server server;
 
+        private static int TIME_TO_SLEEP_WHEN_APOC_RAISED = 500;
+        private static int TIME_TO_SLEEP_WHEN_APOC_LOW = 500;
+
         private int clientsState; // SUM ( client.scale ) in client
-        private List<BoClient> apoClient; // Action Priority Order Client
+        private List<BoClient> apoClient; // Action Priority Order List ; Client [0] = last to change priority
+        private List<BoClient> boclTmp; // temporary apoClient before change insert into apoClient
+        private int sleep;
         private int apocPosition;
         private int latency;
 
@@ -30,9 +35,6 @@ namespace SocketClientServer_Server.core
         internal void run()
         {
 
-            initApoc();
-            List<BoClient> boclTmp;
-
             // The main loop
             while (true)
             {
@@ -41,7 +43,10 @@ namespace SocketClientServer_Server.core
                 boclTmp = model.hasClientListChangeForAPOC();
                 if (boclTmp != null)
                 {
+                    Console.WriteLine("[INFO] [CORE] UPDATE APAC TABLE!");
+
                     updateApoc(boclTmp);
+                    sleep = TIME_TO_SLEEP_WHEN_APOC_LOW;
                 }
 
                 // If cpu is too high
@@ -49,43 +54,134 @@ namespace SocketClientServer_Server.core
                 {
                     // Core comportement when cpu usage is too high
                     cpuIsTooHigh();
-
-                    System.Threading.Thread.Sleep(500);
-                    model.cpuLimitExceeded = false;
-
+                    sleep = TIME_TO_SLEEP_WHEN_APOC_RAISED;
+                    
                 }
-
                 // If cpu is low enough
-                if (model.cpuLoad < (100-model.marge-20))
+                else if (model.cpuFreeZone)
                 {
                     // Core comportement when cpu usage is good
-                    //cpuIsLow();
+                    cpuIsLow();
                 }
+                // If cpu usage in good proportion
+                else
+                {
+                }
+
+
+                // Let sleep the required time
+                if (sleep == 0) 
+                    System.Threading.Thread.Sleep(latency);
+                else
+                {
+                    System.Threading.Thread.Sleep(sleep);
+                    sleep = 0;
+                }
+                
             }
 
-            System.Threading.Thread.Sleep(latency);
-        }
-
-        private void cpuIsLow()
-        {
-            // TODO : go up in APOC
-            Sender.broadCastMessage("cpu is low" + model.cpuLoad + ", feel free to use it");
         }
 
         private void cpuIsTooHigh()
         {
-            // TODO : go down in APOC
-            Sender.broadCastMessage("cpu is too high:" + model.cpuLoad + ", you have to slow down");   
+            // go up in APOC
+            if (apocPosition > 1)
+            {
+                Console.WriteLine("apocPosition: " + apocPosition + " / " + apoClient.Count);
+
+                Console.WriteLine("CPU HIGH !");
+                BoClient target = apoClient[apocPosition - 1];
+                if (target.scalePosition <= 1)
+                {
+                    apocPosition--;
+                    cpuIsTooHigh();
+                } else
+                {
+                    Console.WriteLine("Lower: " + target.id);
+                    target.scalePosition--;
+                    apocPosition--;
+                    //broadcastLevel();
+                    Sender.sendMessage(target, BoMessage.slowDown());
+
+                }
+
+
+            }
         }
+
+        private void cpuIsLow()
+        {
+            // go down in APOC
+            if (apocPosition < apoClient.Count)
+            {
+                Console.WriteLine("apocPosition: " + apocPosition + " / " + apoClient.Count);
+
+                Console.WriteLine("CPU LOW !");
+                BoClient target = apoClient[apocPosition - 1];
+                if (target.scalePosition >= target.scale)
+                {
+                    apocPosition++;
+                    cpuIsLow();
+                }
+                else
+                {
+                    Console.WriteLine("Up: " + target.id);
+                    target.scalePosition++;
+                    apocPosition++;
+                    //broadcastLevel();
+                    Sender.sendMessage(target, BoMessage.speedUp());
+                }
+
+
+            }
+        }
+
 
         private void updateApoc(List<BoClient> boclTmp)
         {
-            // TODO : modification in client list : APOC must be updated
+            // Init of the calc list
+            boclTmp = boclTmp.OrderBy(o => (o.priority*5 + o.scale)).ToList();
+
+            if (boclTmp.Count < apocPosition)
+            {
+                apocPosition = boclTmp.Count;
+            }
+
+            apoClient = new List<BoClient>();
+            foreach(BoClient boc in boclTmp)
+            {
+                for(int i=0; i<boc.scale;i++)
+                {
+                    apoClient.Add(boc);
+                    Console.WriteLine("######## boc id: " + boc.id);
+                }
+            }
+
+            apocPosition = apoClient.Count;
+
+            // Update BOC positions
+            /*for (int i = 0; i < apocPosition; i++)
+            {
+                apoClient[i].scalePosition = 1;
+            }
+            
+            for (int i = apocPosition ; i<apoClient.Count-1; i++)
+            {
+                apoClient[i].scalePosition++;
+            }*/
+
+
+            // Share new position
+            broadcastLevel();
+
         }
 
-        private void initApoc()
-        {
-            // TODO : set APOC list
+        private void broadcastLevel() {
+            foreach (BoClient boc in apoClient)
+            {
+                Sender.sendMessage(boc, BoMessage.givePosition(boc.scalePosition));
+            }
         }
+
     }
 }

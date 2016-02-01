@@ -43,13 +43,11 @@ namespace SocketClientServer_Server
                 Byte[] bytes = new Byte[256];
                 String data = null;
 
-                Console.Write("[INFO] [SERVER] Waiting for a connection... ");
+                Console.WriteLine("[INFO] [SERVER] Waiting for a connection... ");
 
                 // Enter the listening loop.
                 while (true)
                 {
-
-                    Console.WriteLine("[INFO] [SERVER] Ready for new client");
 
                     // Perform a blocking call to accept requests.
                     // You could also user server.AcceptSocket() here.

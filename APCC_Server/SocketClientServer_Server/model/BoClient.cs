@@ -18,11 +18,11 @@ namespace SocketClientServer_Server
         // VAR
         internal int id;
 
-        public TcpClient tcp { get; set; }
-        public bool type { get; private set; }
-        public int priority { get; private set; }
-        public int scale { get; private set; }
-        public int scalePosition { get; set; }
+        public TcpClient tcp { get; set; }  // The tcp connexion to the client
+        public bool type { get; private set; } // true = RealTime ; False = else
+        public int priority { get; private set; } // On a scale of 1 to 3, what priority it is. 1 is most prior
+        public int scale { get; private set; }  // The size of the option scalability
+        public int scalePosition { get; set; }  // [1 -> scale.size], 1 is best full power position
         public string proName { get; private set; }
         public string proDesc { get; private set; }
 
