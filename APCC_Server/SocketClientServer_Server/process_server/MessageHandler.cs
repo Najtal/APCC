@@ -33,6 +33,7 @@ namespace SocketClientServer_Server
                         int probe = Convert.ToInt32(action[3]);
                         String proName = Convert.ToString(action[4]);
                         String proDescription = Convert.ToString(action[5]);
+                        Console.WriteLine("[INFO] [MESSAGE] New Subscription >> priority:"+priority+", probe:"+probe+", proName:"+proName+", proDesc:" + proDescription);
                         // create client
                         client = Model.singleton.newClient(tcpClient, true, priority, probe, proName, proDescription);
                         // Send message

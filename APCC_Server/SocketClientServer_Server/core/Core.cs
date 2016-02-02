@@ -16,7 +16,6 @@ namespace SocketClientServer_Server.core
         private static int TIME_TO_SLEEP_WHEN_APOC_RAISED = 500;
         private static int TIME_TO_SLEEP_WHEN_APOC_LOW = 500;
 
-        private int clientsState; // SUM ( client.scale ) in client
         private List<BoClient> apoClient; // Action Priority Order List ; Client [0] = last to change priority
         private List<BoClient> boclTmp; // temporary apoClient before change insert into apoClient
         private int sleep;
@@ -66,6 +65,7 @@ namespace SocketClientServer_Server.core
                 // If cpu usage in good proportion
                 else
                 {
+                    Console.Write(".");
                 }
 
 
@@ -91,20 +91,23 @@ namespace SocketClientServer_Server.core
 
                 Console.WriteLine("CPU HIGH !");
                 BoClient target = apoClient[apocPosition - 1];
-                if (target.scalePosition <= 1)
+                Console.WriteLine("target : " + target.proName);
+                Console.WriteLine("target scalePosition : " + target.scalePosition);
+                Console.WriteLine("APO size : " + apoClient.Count);
+                Console.WriteLine("APO pos : " + apocPosition);
+                if (target.scalePosition == target.scale)
                 {
+                    Console.WriteLine("Target cannot go lower");
                     apocPosition--;
                     cpuIsTooHigh();
                 } else
                 {
-                    Console.WriteLine("Lower: " + target.id);
-                    target.scalePosition--;
+                    Console.WriteLine("ASK target to go Lower: " + target.id);
+                    target.scalePosition++;
                     apocPosition--;
                     //broadcastLevel();
                     Sender.sendMessage(target, BoMessage.slowDown());
-
                 }
-
 
             }
         }
@@ -114,24 +117,27 @@ namespace SocketClientServer_Server.core
             // go down in APOC
             if (apocPosition < apoClient.Count)
             {
-                Console.WriteLine("apocPosition: " + apocPosition + " / " + apoClient.Count);
-
+              
                 Console.WriteLine("CPU LOW !");
                 BoClient target = apoClient[apocPosition - 1];
-                if (target.scalePosition >= target.scale)
+                Console.WriteLine("APO : " + apocPosition + "/" + apoClient.Count);
+
+                if (target.scalePosition == 1)
                 {
+                    Console.WriteLine("Target cannot go faster");
                     apocPosition++;
                     cpuIsLow();
                 }
                 else
                 {
-                    Console.WriteLine("Up: " + target.id);
-                    target.scalePosition++;
+                    Console.WriteLine("ASK target to go Faster: " + target.id);
+                    target.scalePosition--;
                     apocPosition++;
                     //broadcastLevel();
                     Sender.sendMessage(target, BoMessage.speedUp());
                 }
 
+                Console.WriteLine("APO : " + apocPosition + "/" + apoClient.Count);
 
             }
         }
@@ -139,6 +145,13 @@ namespace SocketClientServer_Server.core
 
         private void updateApoc(List<BoClient> boclTmp)
         {
+
+            Console.WriteLine("Boc list Tmp description");
+            foreach(BoClient b in  boclTmp)
+            {
+                Console.WriteLine("BOC: " + b.proName);
+            }
+
             // Init of the calc list
             boclTmp = boclTmp.OrderBy(o => (o.priority*5 + o.scale)).ToList();
 
@@ -153,7 +166,7 @@ namespace SocketClientServer_Server.core
                 for(int i=0; i<boc.scale;i++)
                 {
                     apoClient.Add(boc);
-                    Console.WriteLine("######## boc id: " + boc.id);
+                    Console.WriteLine("######## boc pos: " + i + " -> id: " + boc.id);
                 }
             }
 
