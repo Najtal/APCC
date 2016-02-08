@@ -26,7 +26,8 @@ public class Apcc {
     private Apcc() {
     }
 
-    public Watcher Init(int clientPort, int serverPort, int priority, int scale, boolean isRealTime, String processName, String processDescription, WatchListener obs) {
+    public Watcher
+    Init(int clientPort, int serverPort, int priority, int scale, boolean isRealTime, String processName, String processDescription, WatchListener obs) {
 
         if (clientPort < 0 || clientPort > 16000) throw new IllegalArgumentException("[APCC][ERROR] Invalid priority: must be between 1 and 12000");
         if (priority > 3 || priority < 1) throw new IllegalArgumentException("[APCC][ERROR] Invalid priority: must be between 1 and 3");

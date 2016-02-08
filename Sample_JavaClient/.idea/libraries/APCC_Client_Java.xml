@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="APCC_Client_Java">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../APCC_Client_Java/out/artifacts/APCC_Client_Java_jar/APCC_Client_Java.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

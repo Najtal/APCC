@@ -37,12 +37,11 @@ namespace SocketClientServer_Server
         }
 
 
-
         public static void Main(String[] args)
         {
             int marge = 20;     // 100%-marge% cpu ou on fait bouger les choses
             int port = 13000;   // port du serveur
-            int latency = 250;  // la fréquence (en ms) a laquelle vérifier le cout des process
+            int latency = 100;  // la fréquence (en ms) a laquelle vérifier le cout des process
 
             new Prog(marge, port, latency);
         }

@@ -46,8 +46,7 @@ namespace SocketClientServer_Server.process_server
                 tcp.GetStream().Write(message, 0, message.Length);
             } catch (Exception e)
             {
-                Console.WriteLine("[ERROR] [SENDER] error while sending message to " + tcp);
-                Model.singleton.clients.Remove(Model.singleton.clients.Find(x => x.tcp == tcp));
+                Model.singleton.removeClient(tcp);
             }
             
         }

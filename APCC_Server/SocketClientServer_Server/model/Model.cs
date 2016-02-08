@@ -62,6 +62,14 @@ namespace SocketClientServer_Server
             return nClient;
         }
 
+        public void removeClient(TcpClient tcp)
+        {
+            clients.Remove(clients.Find(x => x.tcp == tcp));
+            clientListHasChange = true;
+            clientListChangeForAPOC = true;
+            Console.WriteLine("[INFO] [MODEL] Removed client from list");
+        }
+
         [MethodImpl(MethodImplOptions.Synchronized)]
         internal void updateCpuValue(float cpuUsage)
         {

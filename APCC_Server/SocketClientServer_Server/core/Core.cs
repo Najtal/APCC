@@ -87,28 +87,21 @@ namespace SocketClientServer_Server.core
             // go up in APOC
             if (apocPosition > 1)
             {
-                Console.WriteLine("apocPosition: " + apocPosition + " / " + apoClient.Count);
 
-                Console.WriteLine("CPU HIGH !");
                 BoClient target = apoClient[apocPosition - 1];
-                Console.WriteLine("target : " + target.proName);
-                Console.WriteLine("target scalePosition : " + target.scalePosition);
-                Console.WriteLine("APO size : " + apoClient.Count);
-                Console.WriteLine("APO pos : " + apocPosition);
                 if (target.scalePosition == target.scale)
                 {
-                    Console.WriteLine("Target cannot go lower");
                     apocPosition--;
                     cpuIsTooHigh();
                 } else
                 {
-                    Console.WriteLine("ASK target to go Lower: " + target.id);
                     target.scalePosition++;
                     apocPosition--;
                     //broadcastLevel();
                     Sender.sendMessage(target, BoMessage.slowDown());
                 }
 
+                Console.WriteLine("apocPosition: " + apocPosition + " / " + apoClient.Count);
             }
         }
 
@@ -118,19 +111,15 @@ namespace SocketClientServer_Server.core
             if (apocPosition < apoClient.Count)
             {
               
-                Console.WriteLine("CPU LOW !");
                 BoClient target = apoClient[apocPosition - 1];
-                Console.WriteLine("APO : " + apocPosition + "/" + apoClient.Count);
 
                 if (target.scalePosition == 1)
                 {
-                    Console.WriteLine("Target cannot go faster");
                     apocPosition++;
                     cpuIsLow();
                 }
                 else
                 {
-                    Console.WriteLine("ASK target to go Faster: " + target.id);
                     target.scalePosition--;
                     apocPosition++;
                     //broadcastLevel();
@@ -146,45 +135,45 @@ namespace SocketClientServer_Server.core
         private void updateApoc(List<BoClient> boclTmp)
         {
 
-            Console.WriteLine("Boc list Tmp description");
-            foreach(BoClient b in  boclTmp)
-            {
-                Console.WriteLine("BOC: " + b.proName);
-            }
-
-            // Init of the calc list
-            boclTmp = boclTmp.OrderBy(o => (o.priority*5 + o.scale)).ToList();
-
-            if (boclTmp.Count < apocPosition)
-            {
-                apocPosition = boclTmp.Count;
-            }
+            Console.WriteLine("# clients: " + boclTmp.Count);
+            
 
             apoClient = new List<BoClient>();
-            foreach(BoClient boc in boclTmp)
+            for (int i=1; i<=3; i++)
             {
-                for(int i=0; i<boc.scale;i++)
-                {
-                    apoClient.Add(boc);
-                    Console.WriteLine("######## boc pos: " + i + " -> id: " + boc.id);
+                List<BoClient> blPriority = boclTmp.Where(p => p.priority == i).OrderBy(o => o.scale).ToList();
+
+                if (blPriority.Count > 0) { 
+                    int[] tabScale = new int[blPriority.Count];
+                    for (int j = 0; j < tabScale.Length; j++)
+                    {
+                        tabScale[j] = blPriority[j].scale;
+                    }
+
+                    int sumScale = blPriority.Sum(p => p.scale);
+                    Console.WriteLine("sum scale priorité " + i + ": " + sumScale);
+                    int bloPos = 0;
+                    do
+                    {
+                        if (tabScale[bloPos] > 0)
+                        {
+                            apoClient.Add(blPriority[bloPos]);
+                            sumScale--;
+                        }
+                        bloPos++;
+                        if (bloPos == tabScale.Length)
+                            bloPos = 0;
+                    } while (sumScale != 0);
                 }
             }
 
             apocPosition = apoClient.Count;
 
-            // Update BOC positions
-            /*for (int i = 0; i < apocPosition; i++)
+            foreach (BoClient b in apoClient)
             {
-                apoClient[i].scalePosition = 1;
+                b.scalePosition = 1;
             }
-            
-            for (int i = apocPosition ; i<apoClient.Count-1; i++)
-            {
-                apoClient[i].scalePosition++;
-            }*/
 
-
-            // Share new position
             broadcastLevel();
 
         }
